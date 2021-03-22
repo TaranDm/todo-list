@@ -68,8 +68,25 @@
     width: 100%;
 
     height: 100%;
+    .v-navigation-drawer {
+        @media (max-width: 768px) {
+            max-width: min-content;
+            .v-list-item__icon {
+                margin: 0 auto;
+            }
+            .v-list-item__title {
+                display: none;
+            }
+
+
+       }
+
+
+
+    }
     .list-item__content {
         padding: 0;
+
     }
   a {
 
