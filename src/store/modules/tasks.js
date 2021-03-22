@@ -2,8 +2,8 @@ import db from "../../firebase/firebase";
 
 export default {
     state: {
-        tasks:[],
-        loading : true,
+        tasks: [],
+        loading: true,
     },
     mutations: {
         GET_TASKS(state, tasks) {
@@ -40,33 +40,33 @@ export default {
             });
         },
         async editTask({commit}, task) {
-            db.collection('tasks').where('task_id','==', task.task_id)
-                .get().then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {
+            db.collection('tasks').where('task_id', '==', task.task_id)
+                .get().then(function (querySnapshot) {
+                querySnapshot.forEach(function (doc) {
                     doc.ref.update(task).then(() => commit('EDIT_TASK', task));
                 });
             });
         },
         //удаление task
-        removeTask({ commit }, id) {
-            db.collection('tasks').where('task_id','==', id)
-                .get().then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {
+        removeTask({commit}, id) {
+            db.collection('tasks').where('task_id', '==', id)
+                .get().then(function (querySnapshot) {
+                querySnapshot.forEach(function (doc) {
                     doc.ref.delete().then(() => commit('DELETE_TASK', id));
                 });
             });
         },
         getTasks({commit}) {
-              const tasks = [];
-              db.collection("tasks").get().then(response => {
-                    response.forEach(doc => {
-                            tasks.push(doc.data());
-                    });
-                    commit('GET_TASKS', tasks);
-                    commit('SET_TASKS_LOADING', false)
-                }).catch(err => {
-                    console.log("Error getting documents", err);
+            const tasks = [];
+            db.collection("tasks").get().then(response => {
+                response.forEach(doc => {
+                    tasks.push(doc.data());
                 });
+                commit('GET_TASKS', tasks);
+                commit('SET_TASKS_LOADING', false)
+            }).catch(err => {
+                console.log("Error getting documents", err);
+            });
         }
     },
     getters: {

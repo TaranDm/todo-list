@@ -29,10 +29,9 @@ export default {
         },
     },
     actions: {
-
         async addUser({commit}, user) {
-            const id = this.state.users.length > 0 ?
-                Math.max.apply(Math, this.state.users.map(user => user.id)) + 1 : 1;
+            const id = this.state.users.users.length > 0 ?
+                Math.max.apply(Math, this.state.users.users.map(user => user.id)) + 1 : 1;
             console.log('addUser', user);
             db.collection('users').doc()
                 .set({...user, id})
@@ -62,8 +61,6 @@ export default {
                         response.forEach(doc => {
                             if(doc.data().task_person_id === id)
                             doc.ref.delete();
-                                // .then(() => commit('DELETE_TASK', id));
-                            // tasks.push(doc.data());
                         });
                     }).catch(err => {
                         console.log("Error getting documents", err);
@@ -72,37 +69,6 @@ export default {
             });
         },
         getUsers({commit}) {
-            // console.log('getUsers action');
-            // let firebaseDB = db.collection('users');
-            // const users = []
-            // firebaseDB.onSnapshot(async snap => {
-            //     snap.docChanges().forEach(async (doc) => {
-            //         //doc.doc.data() - обьект c ключами в массиве users
-            //         console.log(doc.doc.data())
-            //         //если записи есть(added - тип данных обьекта с данными в farebase)
-            //         if (doc.type === 'added') {
-            //             try {
-            //                 console.log('doc.doc.data()', doc)
-            //                 users.push(doc.doc.data());
-            //             }
-            //             catch (err) {
-            //                 console.log('error', err);
-            //                 alert('Data loading error')
-            //             }
-            //         }
-            //     })
-            //     console.log('getUsers action2');
-            //     if (this.state.counter !=1) {
-            //         commit('GET_USERS', users);
-            //     }
-            //
-            //     commit('SET_USERS_LOADING', false)
-            // });
-
-
-
-
-
             const users = [];
             db.collection("users").get().then(response => {
                 response.forEach(doc => {

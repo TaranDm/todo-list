@@ -1,4 +1,7 @@
 # todo-list
+```
+It is todo-list project was developed in vue.js 2 using firebase and vueifi
+```
 
 ## Project setup
 ```

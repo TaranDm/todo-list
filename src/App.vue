@@ -28,13 +28,16 @@
                   </v-list>
               </v-navigation-drawer>
           </div>
-          <div class="main container">
-
-              <router-view/>
+          <div class="main" >
+              <div class=" container">
+                      <router-view/>
+              </div>
           </div>
+
       </v-app>
   </div>
 </template>
+
 <script>
     export default {
         data() {
@@ -61,7 +64,8 @@
     position: fixed;
     margin: 0;
     padding: 0;
-    width: 256px;
+    max-width: 190px;
+    width: 100%;
 
     height: 100%;
     .list-item__content {

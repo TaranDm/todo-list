@@ -176,5 +176,9 @@
         background-color: #2656ce!important;
         align-self: flex-end;
     }
+    .about {
+        display: flex;
+        flex-direction: column;
+    }
 
 </style>

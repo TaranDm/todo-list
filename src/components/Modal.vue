@@ -1,54 +1,60 @@
 <template>
 
-       <div class="modal">
-           <div class="modal" ref="modal" @click="modalCloses" >
-<!--               <v-card>-->
-<!--                   <v-card-title class="headline grey lighten-2">-->
-<!--                       Privacy Policy-->
-<!--                   </v-card-title>-->
-               <div class="modal__wrapper">
-                   <form @submit.prevent @submit="onSubmit">
-<!--                       <label for="name">Добавьте пользователя:</label>-->
-<!--                       <input  type="text" id="name" name="name"-->
-<!--                               v-model = "personName"-->
-<!--                               placeholder="Ввдите имя пользователя"-->
-<!--                               :disabled="mode === 'show'"-->
-<!--                       >-->
-                       <v-text-field
-                               label="Name"
-                               type="text" id="name" name="name"
-                               v-model = "personName"
-                               :disabled="mode === 'show'"
-                       ></v-text-field>
-                       <v-text-field
-                               label="Email"
-                               type="text" id="email" name="email"
-                               v-model = "personEmail"
-                               placeholder="Ввдите email пользователя"
-                               :disabled="mode === 'show'"
-                       ></v-text-field>
+    <div class="modal">
+        <div class="modal" ref="modal" @click="modalCloses">
+            <div class="modal__wrapper">
+                <form @submit.prevent @submit="onSubmit" novalidate>
 
-                       <div class="control">
-                           <button type="submit" v-if="mode === 'add'">Добавить</button>
-                           <button type="submit" v-if="mode === 'edit'">Редактировать</button>
-                           <button ref="closeBtn" type="button" @click="modalCloses">Закрыть</button>
-                       </div>
-                   </form>
-               </div>
-<!--               </v-card>-->
-           </div>
-       </div>
+                    <v-text-field
+                            label="Name"
+                            :error-messages="nameErrors"
+                            required
+                            type="text" id="name" name="name"
+                            v-model="personName"
+                            :disabled="mode === 'show'"
+                            @input="$v.personName.$touch()"
+                            @blur="$v.personName.$touch()"
+                    ></v-text-field>
+                    <v-text-field
+                            label="Email"
+                            required
+                            :error-messages="emailErrors"
+                            type="text" id="email" name="email"
+                            v-model="personEmail"
+                            placeholder="Ввдите email пользователя"
+                            :disabled="mode === 'show'"
+                            @input="$v.personEmail.$touch()"
+                            @blur="$v.personEmail.$touch()"
+                    ></v-text-field>
+
+                    <div class="control">
+                        <button type="submit" v-if="mode === 'add'">Добавить</button>
+                        <button type="submit" v-if="mode === 'edit'">Редактировать</button>
+                        <button ref="closeBtn" type="button" @click="modalCloses">Закрыть</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 </template>
 
 <script>
-    // import db from "../firebase/firebase";
+    import Vue from 'vue';
+    import Vuelidate from 'vuelidate'
+
+    Vue.use(Vuelidate)
+    const {required, maxLength, email} = require('vuelidate/lib/validators')
     export default {
-        props : ['users', 'mode', 'id'],
+        props: ['users', 'mode', 'id'],
         name: "Modal",
+        validations: {
+            personName: {required, maxLength: maxLength(255)},
+            personEmail: {required, email},
+        },
         data(props) {
             const {users, mode, id} = props;
-            const user =  users.find(user => user.id === id);
+            const user = users.find(user => user.id === id);
 
             const currentItem = (mode === 'show') || (mode === 'edit') ? {
                 personName: user.fio,
@@ -57,39 +63,56 @@
                 personName: '',
                 personEmail: '',
             }
-            return currentItem;
+            return {
+                ...currentItem,
+            }
+
+        },
+        computed: {
+            nameErrors() {
+                const errors = []
+                if (!this.$v.personName.$dirty) return errors
+                !this.$v.personName.maxLength && errors.push('Name must be at most 10 characters long')
+                !this.$v.personName.required && errors.push('Name is required.')
+                return errors
+            },
+            emailErrors() {
+                const errors = []
+                if (!this.$v.personEmail.$dirty) return errors
+                !this.$v.personEmail.email && errors.push('Must be valid e-mail')
+                !this.$v.personEmail.required && errors.push('E-mail is required')
+                return errors
+            },
         },
         methods: {
             modalCloses(evt) {
                 evt.stopPropagation();
 
-                if(evt.target === this.$refs.modal || evt.target === this.$refs.closeBtn){
+                if (evt.target === this.$refs.modal || evt.target === this.$refs.closeBtn) {
                     this.$emit("ModalClose")
                 }
             },
             // добавление нового пользователя
             onSubmit(e) {
-                    e.stopPropagation();
-                    if (this.personName === '' || this.personEmail === '' ) {
-                        // eslint-disable-next-line
-                        alert('please fill in the field');
-                    } else {
-                        const user = {
-                            fio: this.personName,
-                            email: this.personEmail,
-                        }
-                        if(this.id) {
-                            user.id = this.id;
-                        }
-                        this.$store.dispatch(this.mode === 'add' ? 'addUser' : 'editUser', user)
-                        .then(()=>{
+                e.stopPropagation();
+                this.$v.$touch();
+
+                if (!this.$v.$invalid) {
+                    const user = {
+                        fio: this.personName,
+                        email: this.personEmail,
+                    }
+                    if (this.id) {
+                        user.id = this.id;
+                    }
+                    this.$store.dispatch(this.mode === 'add' ? 'addUser' : 'editUser', user)
+                        .then(() => {
                             console.log('after addPerson');
                             this.$emit("ModalClose")
                         })
-                    }
-
-                },
-            }
+                }
+            },
+        }
     }
 </script>
 
@@ -105,9 +128,11 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
         label {
 
         }
+
         /*.control {*/
         /*    display: flex;*/
         /*    justify-content: space-between;*/
@@ -123,6 +148,7 @@
             box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7);
             margin-right: 10px;
         }
+
         &__wrapper {
             max-width: 500px;
             border-radius: 8px;
@@ -133,6 +159,7 @@
             flex-direction: column;
             box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7);
         }
+
         input {
             color: #fff;
             border: none;
@@ -140,6 +167,7 @@
             width: 100%;
             padding: 6px 4px;
             margin: 10px 0 20px;
+
             &:focus {
                 outline: none;
             }
