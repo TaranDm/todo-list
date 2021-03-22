@@ -19,7 +19,6 @@
                        ></v-text-field>
                        <v-select
                                v-model="selectedUser"
-                               :hint="`${selectedUser.fio}`"
                                :items="users"
                                label="User"
                                item-text="fio"
@@ -68,18 +67,17 @@
         name: "Modal",
         validations: {
             task_title: { required, maxLength: maxLength(50) },
-            // task_description: { required, },
-            selectedUser: {
-                id: { required },
-            }
+            selectedUser: {required},
 
         },
         data(props) {
 
             const {tasks, mode, id} = props;
-            const task =  tasks.find(task => task.task_id === id);
-            const user =  task && this.$store.state.users.users.find(user => user.id === task.task_person_id);
-
+            //поиск текущего task
+            const task = tasks.find(task => task.task_id === id);
+            //поиск user
+            const user = task && this.$store.state.users.users.find(user => user.id === task.task_person_id);
+            //инициализация формы
             const currentItem = (mode === 'show') || (mode === 'edit') ? {
                 task_title: task.task_title,
                 task_description: task.task_description,
@@ -87,7 +85,7 @@
             } : {
                 task_title: '',
                 task_description: '',
-                selectedUser: {fio: '', id: 0},
+                selectedUser: null,
             }
             return {
                 ...currentItem,
